@@ -24,6 +24,9 @@
 
         <!-- Galvenā sadaļa -->
         <main class="main">
+            <h6>flash:</h6>
+            <x-flash-success />
+        <x-flash-errors />
             {{ $slot }}
         </main>
 

@@ -1,8 +1,9 @@
 <x-layout title="Edit Product">
     <h1 class="text-2xl font-bold mb-4">Edit Product</h1>
 
-    <form action="{{ route('products.store') }}" method="POST">
+    <form action="{{ route('products.update', $product) }}" method="POST">
     @csrf
+    @method('PUT')
     <label for="name">Nosaukums:</label>
     <input type="text" name="name" id="name" value="{{ old('name') }}" required>
     <label for="price">Price:</label>
