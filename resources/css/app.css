@@ -1,11 +1,87 @@
-@import 'tailwindcss';
+/* Bāzes stils */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* Holy Grail container ar CSS Grid */
+.holy-grail {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px; /* kreisā, centrālā, labā kolonna */
+    grid-template-rows: 60px 1fr 40px; /* header, main/aside, footer */
+    grid-template-areas:
+        "header header header"
+        "nav main aside"
+        "footer footer footer";
+    height: 100vh; /* pilna augstuma skats */
+    gap: 10px;
+    background-color: #f0f0f0;
+    padding: 10px;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/* Katras zonas izvietojums */
+.header {
+    grid-area: header;
+    background: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.nav {
+    grid-area: nav;
+    background: #e9ecef;
+    padding: 15px;
+
+    /* Flexbox iestatījumi vertikālai kolonnai */
+    display: flex;
+    flex-direction: column; /* elementi stājas viens zem otra */
+    align-items: flex-start; /* sakārto pa kreisi */
+    justify-content: flex-start; /* sākums no augšas */
+    height: 100%; /* lai aizpildītu sānjoslu augstumu */
+}
+
+.nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%; /* lai saites aizņem visu platumu */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* atstarpe starp saites vienībām */
+}
+
+.nav a {
+    text-decoration: none;
+    color: #007bff;
+    display: block;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.main {
+    grid-area: main;
+    background: white;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.aside {
+    grid-area: aside;
+    background: #e9ecef;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.footer {
+    grid-area: footer;
+    background: #343a40;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
 }
