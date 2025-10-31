@@ -35,6 +35,17 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
+    public function adjustQuantity(Product $product, $action)
+{
+    // Pārbaudīt, vai quantity ir ievērojams
+    if ($action == 'increase') {
+        $product->increment('quantity');
+    } elseif ($action == 'decrease' && $product->quantity > 0) {
+        $product->decrement('quantity');
+    }
+
+    return redirect()->route('products.show', $product)->with('success', 'Product quantity updated.');
+}
 
     public function show(Product $product)
     {
