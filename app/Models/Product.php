@@ -10,6 +10,11 @@ class Product extends Model
         'name', 'quantity', 'description', 'expiration_date', 'status', 'price'
     ];
 
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'product_tag');
+    }
+
     public function increaseQuantity()
     {
         $this->quantity++;

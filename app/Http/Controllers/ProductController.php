@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tag;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -83,5 +84,41 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted.');
     }
+
+       public function addTags(Request $request, Product $product)
+{
+    $tags = $request->input('tags', []);
+
+    if (!is_array($tags) || count($tags) === 0) {
+        return response()->json(['error' => 'At least one tag is required.'], 400);
+    }
+
+    foreach ($tags as $tagNameOrId) {
+        if (is_numeric($tagNameOrId)) {
+            $tag = Tag::find($tagNameOrId);
+        } else {
+            $tag = Tag::firstOrCreate(['name' => $tagNameOrId]);
+        }
+
+        if ($tag && !$product->tags->contains($tag)) {
+            $product->tags()->attach($tag);
+        }
+    }
+
+    return response()->json(['success' => true]);
+}
+
+public function removeTag(Product $product, $tagId)
+{
+    $tag = Tag::findOrFail($tagId);
+    if ($product->tags->contains($tag)) {
+        $product->tags()->detach($tag);
+    }
+    return response()->json(['success' => true]);
+}
+
+
+
+
 }
 
