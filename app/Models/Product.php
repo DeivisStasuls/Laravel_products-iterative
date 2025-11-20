@@ -9,19 +9,32 @@ class Product extends Model
 {
     use HasFactory;
 
-    // Masīvi, kurus var aizpildīt masveidā
     protected $fillable = [
-    'name',
-    'quantity',
-    'description',
-    'expiration_date',
-    'status',
-    'price',
-];
+        'name',
+        'quantity',
+        'description',
+        'expiration_date',
+        'status',
+        'price',
+    ];
 
-
-    // Ja vēlies, var formatēt datumu automātiski kā Carbon objektu
     protected $dates = [
         'expiration_date',
     ];
+
+    // Increase quantity by 1
+    public function increaseQuantity()
+    {
+        return $this->increment('quantity');
+    }
+
+    // Decrease quantity by 1 but never below 0
+    public function decreaseQuantity()
+    {
+        if ($this->quantity > 0) {
+            return $this->decrement('quantity');
+        }
+
+        return false;
+    }
 }
