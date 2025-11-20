@@ -43,9 +43,12 @@ class ProductController extends Controller
         $product->decreaseQuantity();
     }
 
-    return redirect()
-        ->route('products.show', $product)
-        ->with('success', 'Product quantity updated.');
+    if (request()->ajax()) {
+        return response()->json(['quantity' => $product->quantity]);
+    }
+
+    return redirect()->route('products.show', $product)
+                     ->with('success', 'Product quantity updated.');
 }
     public function show(Product $product)
     {

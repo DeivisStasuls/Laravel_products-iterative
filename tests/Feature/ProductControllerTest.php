@@ -1,110 +1,161 @@
 <?php
+
 namespace Tests\Feature;
 
+use Tests\TestCase;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 
 class ProductControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[Test]
+    /** @test */
     public function index_displays_all_products()
     {
-        $product = Product::factory()->create();
+        $product = Product::create([
+            'name' => 'Test Product',
+            'quantity' => 10,
+            'description' => 'Test desc',
+            'expiration_date' => now()->addDays(10),
+            'status' => 'available',
+            'price' => 99.99,
+        ]);
 
         $response = $this->get(route('products.index'));
 
         $response->assertStatus(200);
-        $response->assertSee($product->name);
+        $response->assertSeeText('Test Product');
     }
 
-    #[Test]
-    public function create_displays_product_creation_form()
+    /** @test */
+    public function create_returns_view()
     {
         $response = $this->get(route('products.create'));
 
         $response->assertStatus(200);
-        $response->assertSee('Create Product');
+        $response->assertViewIs('products.create');
     }
 
-    #[Test]
-    public function store_creates_a_product()
+    /** @test */
+    public function store_creates_product_and_redirects()
     {
-        $response = $this->post(route('products.store'), [
-            'name' => 'Test Product',
+        $data = [
+            'name' => 'New Product',
             'quantity' => 5,
-            'price' => 100.50,
-            'description' => 'Test product description.',
-            'expiration_date' => '2025-12-31',
-            'status' => 'available'
-        ]);
+            'description' => 'A description',
+            'expiration_date' => now()->addDays(5)->toDateString(),
+            'status' => 'available',
+            'price' => 49.99,
+        ];
 
-        $response->assertStatus(302);  // Expected redirect
-        $this->assertDatabaseHas('products', [
-            'name' => 'Test Product',
-            'quantity' => 5,
-            'price' => 100.50
-        ]);
+        $response = $this->post(route('products.store'), $data);
+
+        $response->assertRedirect(route('products.index'));
+        $this->assertDatabaseHas('products', ['name' => 'New Product']);
     }
 
-    #[Test]
-    public function show_displays_product_details()
+    /** @test */
+    public function show_displays_product()
     {
-        $product = Product::factory()->create();
+        $product = Product::create([
+            'name' => 'Show Product',
+            'quantity' => 5,
+            'description' => 'Desc',
+            'expiration_date' => now()->addDays(5),
+            'status' => 'available',
+            'price' => 20,
+        ]);
 
         $response = $this->get(route('products.show', $product));
 
         $response->assertStatus(200);
-        $response->assertSee($product->name);
+        $response->assertSeeText('Show Product');
     }
 
-    #[Test]
-    public function edit_displays_product_edit_form()
+    /** @test */
+    public function edit_returns_edit_view()
     {
-        $product = Product::factory()->create();
+        $product = Product::create([
+            'name' => 'Edit Product',
+            'quantity' => 2,
+            'description' => 'Edit desc',
+            'expiration_date' => now()->addDays(2),
+            'status' => 'available',
+            'price' => 15,
+        ]);
 
         $response = $this->get(route('products.edit', $product));
 
         $response->assertStatus(200);
-        $response->assertSee('Edit Product');
-        $response->assertSee($product->name);
+        $response->assertViewIs('products.edit');
     }
 
-    #[Test]
-    public function update_modifies_existing_product()
+    /** @test */
+    public function update_modifies_product_and_redirects()
     {
-        $product = Product::factory()->create();
-
-        $response = $this->put(route('products.update', $product), [
-            'name' => 'Updated Product',
-            'quantity' => 10,
-            'price' => 150.00,
-            'description' => 'Updated description.',
-            'expiration_date' => '2025-12-31',
-            'status' => 'unavailable'
+        $product = Product::create([
+            'name' => 'Old Name',
+            'quantity' => 1,
+            'description' => 'Old desc',
+            'expiration_date' => now(),
+            'status' => 'available',
+            'price' => 10,
         ]);
 
-        $response->assertStatus(302); // Expected redirect
-        $this->assertDatabaseHas('products', [
-            'name' => 'Updated Product',
-            'quantity' => 10,
-            'price' => 150.00
-        ]);
+        $data = [
+            'name' => 'Updated Name',
+            'quantity' => 3,
+            'description' => 'Updated desc',
+            'expiration_date' => now()->addDays(10)->toDateString(),
+            'status' => 'available',
+            'price' => 20,
+        ];
+
+        $response = $this->put(route('products.update', $product), $data);
+
+        $response->assertRedirect(route('products.index'));
+        $this->assertDatabaseHas('products', ['name' => 'Updated Name', 'quantity' => 3]);
     }
 
-    #[Test]
-    public function destroy_deletes_product()
+    /** @test */
+    public function destroy_deletes_product_and_redirects()
     {
-        $product = Product::factory()->create();
+        $product = Product::create([
+            'name' => 'Delete Me',
+            'quantity' => 1,
+            'description' => 'To delete',
+            'expiration_date' => now(),
+            'status' => 'available',
+            'price' => 10,
+        ]);
 
         $response = $this->delete(route('products.destroy', $product));
 
-        $response->assertStatus(302); // Expected redirect
-        $this->assertDatabaseMissing('products', [
-            'id' => $product->id
-        ]);
+        $response->assertRedirect(route('products.index'));
+        $this->assertDatabaseMissing('products', ['name' => 'Delete Me']);
     }
+
+    /** @test */
+    public function adjust_quantity_increases_and_decreases_quantity()
+{
+    $product = Product::create([
+        'name' => 'Quantity Test',
+        'quantity' => 5,
+        'description' => 'Qty desc',
+        'expiration_date' => now(),
+        'status' => 'available',
+        'price' => 10,
+    ]);
+
+    // Increase
+    $this->get(route('products.adjust', ['product' => $product->id, 'action' => 'increase']));
+    $product->refresh();
+    $this->assertEquals(6, $product->quantity);
+
+    // Decrease
+    $this->get(route('products.adjust', ['product' => $product->id, 'action' => 'decrease']));
+    $product->refresh();
+    $this->assertEquals(5, $product->quantity);
+}
 }

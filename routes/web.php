@@ -11,4 +11,5 @@ Route::get('/', function () {
 Route::resource('products', ProductController::class);
 // routes/web.php
 Route::get('/products/{product}/adjust/{action}', [ProductController::class, 'adjustQuantity'])->name('products.adjust');
-    
+    Route::post('/products/{product}/adjust/{action}', [ProductController::class, 'adjustQuantity'])
+    ->name('products.adjust');
